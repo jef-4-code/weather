@@ -37,6 +37,28 @@ does that actually mean for me" — pack a jumper, bring an umbrella, don't both
 Without a key set, the app still runs — you'll get the stats comparison table, just not the
 AI-generated narrative (the UI tells you why).
 
+## Deploying (Render)
+
+The repo includes a `render.yaml` blueprint, so Render can pick up the build/start commands
+automatically:
+
+1. Push this repo to GitHub (already done if you're reading this from there).
+2. In the [Render dashboard](https://dashboard.render.com), **New → Blueprint**, and point it at
+   this repo. Render reads `render.yaml` and proposes a single web service
+   (`gunicorn server:app` on the free plan).
+3. Before the first deploy, set the `ANTHROPIC_API_KEY` environment variable in that service's
+   **Environment** tab — the blueprint deliberately leaves it blank (`sync: false`) so the real
+   key never lives in the repo or the YAML file.
+4. Deploy. Render assigns a public `https://<service-name>.onrender.com` URL.
+
+No other code changes are needed — `server.py` already reads `PORT` from the environment (which
+Render sets automatically) and only runs in Flask's debug dev-server mode if you explicitly set
+`FLASK_DEBUG=1`, which you shouldn't in production.
+
+The free plan spins the service down after a period of inactivity, so the first request after a
+quiet spell takes a few extra seconds to wake it up — normal for a free-tier demo, not something
+to fix unless you upgrade the plan.
+
 ## How it's put together
 
 - `server.py` — Flask app. Serves `public/` and exposes one endpoint, `POST /api/compare`,

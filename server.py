@@ -104,4 +104,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
     if _client is None:
         print("No ANTHROPIC_API_KEY set — the app will run, but /api/compare will return 503.")
-    app.run(port=port, debug=True)
+    # Flask's dev server only — production (Render) runs this via gunicorn instead,
+    # which never executes this block. debug=True is opt-in for local work only.
+    app.run(port=port, debug=os.environ.get("FLASK_DEBUG") == "1")
