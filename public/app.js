@@ -34,7 +34,6 @@ const els = {
   errorMessage: document.getElementById("error-message"),
   results: document.getElementById("results"),
   skeleton: document.getElementById("skeleton"),
-  chips: document.getElementById("chips"),
   aiPanel: document.getElementById("ai-panel"),
   aiText: document.getElementById("ai-text"),
   comparisonTitle: document.getElementById("comparison-title"),
@@ -174,7 +173,6 @@ function setLoading(isLoading) {
 
 function showSkeleton() {
   els.skeleton.hidden = false;
-  els.chips.hidden = true;
   els.aiPanel.hidden = true;
 }
 
@@ -338,17 +336,6 @@ function renderStats(a, b) {
   }
 }
 
-function renderChips(chips) {
-  els.chips.innerHTML = "";
-  for (const chip of chips) {
-    const span = document.createElement("span");
-    span.className = "chip";
-    span.textContent = chip;
-    els.chips.appendChild(span);
-  }
-  els.chips.hidden = chips.length === 0;
-}
-
 async function requestComparison(a, b) {
   const res = await fetch("/api/compare", {
     method: "POST",
@@ -364,7 +351,7 @@ async function requestComparison(a, b) {
     err.code = data.error;
     throw err;
   }
-  return { verdict: data.verdict, chips: data.chips || [] };
+  return data.verdict;
 }
 
 function stripLabel({ label, date, ...summary }) {
@@ -394,9 +381,8 @@ async function runComparison() {
     els.results.hidden = false;
 
     try {
-      const { verdict, chips } = await requestComparison(weatherA, weatherB);
+      const verdict = await requestComparison(weatherA, weatherB);
       hideSkeleton();
-      renderChips(chips);
       els.aiText.textContent = verdict;
       els.aiPanel.hidden = false;
     } catch (aiErr) {

@@ -10,8 +10,6 @@
   --accent: oklch(0.6 0.15 235);
   --accent-dark: oklch(0.45 0.13 235);
   --accent-soft: oklch(0.95 0.03 235);
-  --amber: oklch(0.4 0.13 35);
-  --amber-soft: oklch(0.95 0.03 35);
   --up: oklch(0.55 0.15 35);
   --down: oklch(0.5 0.14 235);
   --radius-lg: 20px;
@@ -22,6 +20,13 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* The browser's default [hidden] { display: none } loses to any author rule that
+   sets display on the same element (e.g. .skeleton { display: flex }), so an
+   element can end up with the hidden attribute set yet still visible. Force it. */
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -353,22 +358,6 @@ main {
   border-radius: var(--radius-sm);
   animation: pulse 1.1s ease-in-out infinite;
   margin-top: 6px;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.chip {
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--amber-soft);
-  color: var(--amber);
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .ai-panel {
