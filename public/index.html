@@ -4,61 +4,119 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Weather, Relatively</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-<header>
-  <h1>Weather, Relatively</h1>
-  <p class="tagline">Not just what the weather is — what it means, compared to somewhere else.</p>
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-name">Weather, Relatively</span>
+    <span class="brand-tag">weather, compared</span>
+  </div>
+  <nav>
+    <a href="#use-cases">How it works</a>
+  </nav>
 </header>
 
 <main>
-  <form id="compare-form">
-    <div class="location-card">
-      <h2>From</h2>
-      <label>Location
-        <input type="text" id="location-a" placeholder="e.g. London" autocomplete="off" required />
-      </label>
-      <label>Date
-        <input type="date" id="date-a" required />
-      </label>
+  <section class="hero">
+    <h1>Weather only means something in comparison.</h1>
+    <p class="hero-sub">Not just what the weather is — what it means, compared to somewhere else.</p>
+  </section>
+
+  <section class="tool-card">
+    <div class="tool-card-header">
+      <span class="eyebrow">Compare</span>
+      <button type="button" id="swap-btn" class="swap-btn" title="Swap" aria-label="Swap locations">⇄ Swap</button>
     </div>
 
-    <button type="button" id="swap-btn" title="Swap" aria-label="Swap locations">⇄</button>
+    <form id="compare-form" class="sides">
+      <div class="side-card">
+        <span class="eyebrow">Weather in</span>
 
-    <div class="location-card">
-      <h2>To</h2>
-      <label>Location
-        <input type="text" id="location-b" placeholder="e.g. Reykjavik" autocomplete="off" required />
-      </label>
-      <label>Date
-        <input type="date" id="date-b" required />
-      </label>
+        <label class="location-field">
+          <svg class="pin-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 21c4-5 7-8.5 7-12a7 7 0 1 0-14 0c0 3.5 3 7 7 12z" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+          <input type="text" id="location-a" placeholder="e.g. London" autocomplete="off" required />
+        </label>
+
+        <div class="date-seg" data-side="a">
+          <button type="button" class="seg-btn" data-mode="today">Today</button>
+          <button type="button" class="seg-btn" data-mode="yesterday">Yesterday</button>
+          <button type="button" class="seg-btn" data-mode="custom">Custom</button>
+        </div>
+        <input type="date" class="custom-date-input" id="custom-date-a" hidden />
+      </div>
+
+      <div class="side-card">
+        <span class="eyebrow">Compared with</span>
+
+        <label class="location-field">
+          <svg class="pin-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 21c4-5 7-8.5 7-12a7 7 0 1 0-14 0c0 3.5 3 7 7 12z" fill="none" stroke="currentColor" stroke-width="2"></path>
+          </svg>
+          <input type="text" id="location-b" placeholder="e.g. Reykjavik" autocomplete="off" required />
+        </label>
+
+        <div class="date-seg" data-side="b">
+          <button type="button" class="seg-btn" data-mode="today">Today</button>
+          <button type="button" class="seg-btn" data-mode="yesterday">Yesterday</button>
+          <button type="button" class="seg-btn" data-mode="custom">Custom</button>
+        </div>
+        <input type="date" class="custom-date-input" id="custom-date-b" hidden />
+      </div>
+    </form>
+
+    <button id="compare-btn" type="submit" form="compare-form" class="compare-btn">Compare weather</button>
+
+    <p id="error-message" class="error" hidden></p>
+
+    <div id="results" class="results" hidden>
+      <div class="ai-block">
+        <div id="skeleton" class="skeleton">
+          <div class="skel-bar w70"></div>
+          <div class="skel-bar w45"></div>
+          <div class="skel-block"></div>
+        </div>
+
+        <div id="chips" class="chips" hidden></div>
+
+        <div id="ai-panel" class="ai-panel" hidden>
+          <span class="eyebrow">AI summary</span>
+          <p id="ai-text"></p>
+        </div>
+      </div>
+
+      <h3 id="comparison-title" class="comparison-title"></h3>
+
+      <div class="stats-grid-wrap">
+        <div id="stats-grid" class="stats-grid"></div>
+      </div>
     </div>
-  </form>
+  </section>
 
-  <button id="compare-btn" type="submit" form="compare-form">Compare weather</button>
+  <section id="use-cases" class="use-cases">
+    <h2>Two ways to use it</h2>
+    <p class="use-cases-sub">The same question, two different reasons to ask it.</p>
 
-  <p id="error-message" class="error" hidden></p>
+    <div class="use-case-cards">
+      <div class="use-case-card">
+        <div class="use-case-icon" aria-hidden="true">🌤️</div>
+        <h3>Same place, another day</h3>
+        <p>14° today doesn't mean much on its own. Was it warmer yesterday? Get the context before you decide on a jumper.</p>
+        <button type="button" class="try-btn" data-preset="today-yesterday">Try it →</button>
+      </div>
 
-  <section id="results" hidden>
-    <div class="ai-take">
-      <h2>The take</h2>
-      <p id="ai-text"></p>
-    </div>
-
-    <div class="table-wrap">
-      <table id="stats-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th id="col-a-label"></th>
-            <th id="col-b-label"></th>
-            <th>Difference</th>
-          </tr>
-        </thead>
-        <tbody id="stats-body"></tbody>
-      </table>
+      <div class="use-case-card">
+        <div class="use-case-icon" aria-hidden="true">🧳</div>
+        <h3>Home vs. away</h3>
+        <p>Going on holiday? See exactly how the weather where you're headed compares to home, so you pack the right things.</p>
+        <button type="button" class="try-btn" data-preset="home-away">Try it →</button>
+      </div>
     </div>
   </section>
 </main>

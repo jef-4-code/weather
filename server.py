@@ -31,17 +31,44 @@ MODEL = "claude-opus-5"
 SYSTEM_PROMPT = """You are the comparison engine behind "Weather, Relatively", a tool that \
 tells people what weather actually means relative to somewhere else — not just the numbers.
 
-You'll be given structured weather data for two location/date pairs, labeled A and B. Write a \
-short comparison that translates the numbers into a practical takeaway.
+You'll be given structured weather data for two location/date pairs, labeled A and B. Produce \
+a verdict and a short list of chips.
 
-Rules:
+verdict:
 - 2-4 sentences. Plain language. No headers, no bullet points, no markdown.
 - Lead with the single most useful takeaway (e.g. what to wear, whether to bring an umbrella).
 - Cite at least one concrete number (a temperature or precipitation difference) to back the claim.
 - If an evening figure is present for both, comment specifically on evening comfort (jumper \
 weather or not) as well as the daytime picture.
 - If the two are genuinely similar, say so plainly instead of inventing a difference.
-- Refer to the locations by name, not "Location A/B"."""
+- Refer to the locations by name, not "Location A/B".
+
+chips:
+- Return 1 to 3 short (2-5 word) practical tags, e.g. "Pack a jumper", "Bring an umbrella", \
+"Sunscreen weather".
+- Only include a chip when the data genuinely warrants it — a meaningfully colder evening, \
+high daytime heat, notably more rain than the other side, or much stronger wind.
+- If nothing stands out, return exactly one chip: "Dress about the same"."""
+
+RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "verdict": {
+            "type": "string",
+            "description": "A 2-4 sentence plain-language comparison of the two weather snapshots.",
+        },
+        "chips": {
+            "type": "array",
+            "items": {"type": "string"},
+            # Structured outputs doesn't support minItems/maxItems on arrays — the count
+            # ("1-3 chips") is enforced via SYSTEM_PROMPT instead.
+            "description": "1-3 short (2-5 word) practical tags, e.g. 'Pack a jumper', "
+            "'Bring an umbrella'. If nothing stands out, a single tag like 'Dress about the same'.",
+        },
+    },
+    "required": ["verdict", "chips"],
+    "additionalProperties": False,
+}
 
 app = Flask(__name__, static_folder=None)
 _client = anthropic.Anthropic() if os.environ.get("ANTHROPIC_API_KEY") else None
@@ -86,6 +113,7 @@ def compare():
             model=MODEL,
             max_tokens=400,
             system=SYSTEM_PROMPT,
+            output_config={"format": {"type": "json_schema", "schema": RESPONSE_SCHEMA}},
             messages=[{"role": "user", "content": user_prompt}],
         )
     except anthropic.APIStatusError as exc:
@@ -97,7 +125,14 @@ def compare():
         ), 502
 
     text = "".join(block.text for block in response.content if block.type == "text")
-    return jsonify({"comparison": text.strip()})
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError:
+        return jsonify(
+            {"error": "bad_response", "message": "Got an unexpected response shape from Claude."}
+        ), 502
+
+    return jsonify({"verdict": result.get("verdict", "").strip(), "chips": result.get("chips", [])})
 
 
 if __name__ == "__main__":
